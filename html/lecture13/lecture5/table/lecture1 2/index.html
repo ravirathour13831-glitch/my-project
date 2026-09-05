@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Always Visible</title>
+
+    <style>
+        #myBox {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="myBox">
+        Ye box hamesha visible rahega.
+    </div>
+
+    <script>
+        const box = document.getElementById("myBox");
+
+        // Agar JavaScript se hide karne ki koshish ho
+        setInterval(() => {
+            box.style.display = "block";
+            box.style.visibility = "visible";
+            box.style.opacity = "1";
+        }, 100);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,188 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: #080b16;
+
+    font-family: Arial, sans-serif;
+
+    color: white;
+}
+
+.game-container {
+    text-align: center;
+
+    width: 95%;
+    max-width: 650px;
+}
+
+h1 {
+    margin-bottom: 15px;
+
+    font-size: 32px;
+
+    letter-spacing: 4px;
+}
+
+.info {
+    display: flex;
+
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    padding: 10px 15px;
+
+    background: #111729;
+
+    border-radius: 10px;
+}
+
+#gameBoard {
+    width: 100%;
+
+    aspect-ratio: 1 / 1;
+
+    display: grid;
+
+    background: #101522;
+
+    border: 3px solid #303b5c;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+.cell {
+    position: relative;
+
+    border: 1px solid #1b2439;
+}
+
+.wall {
+    background: #343d52;
+
+    box-shadow:
+        inset 0 0 10px #111;
+}
+
+.floor {
+    background: #141b2c;
+}
+
+.player {
+    background: #35e0ff;
+
+    border-radius: 50%;
+
+    width: 65%;
+    height: 65%;
+
+    position: absolute;
+
+    top: 17.5%;
+    left: 17.5%;
+
+    box-shadow:
+        0 0 15px #35e0ff,
+        0 0 30px #35e0ff;
+}
+
+.shadow {
+    background: #000;
+
+    border: 3px solid #777;
+
+    border-radius: 50%;
+
+    width: 65%;
+    height: 65%;
+
+    position: absolute;
+
+    top: 17.5%;
+    left: 17.5%;
+
+    box-shadow:
+        0 0 12px #000;
+}
+
+.goal {
+    background: #20e070;
+
+    border-radius: 8px;
+
+    width: 70%;
+    height: 70%;
+
+    position: absolute;
+
+    top: 15%;
+    left: 15%;
+
+    box-shadow:
+        0 0 20px #20e070;
+}
+
+.controls {
+    margin-top: 15px;
+
+    color: #aab4cc;
+
+    font-size: 14px;
+}
+
+#message {
+    min-height: 30px;
+
+    margin-top: 12px;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+#restartBtn {
+    margin-top: 10px;
+
+    padding: 10px 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #35e0ff;
+
+    color: #071019;
+
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+#restartBtn:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 500px) {
+
+    h1 {
+        font-size: 23px;
+    }
+
+    .controls {
+        font-size: 12px;
+    }
+
+}
+
