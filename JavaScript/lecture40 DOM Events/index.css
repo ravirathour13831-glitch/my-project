@@ -1,0 +1,36 @@
+ *{
+    padding: 0;
+    margin: 0;
+    /* box-sizing: border-box; */
+
+ }
+
+ .photo1 {
+    width: 200px;
+
+    padding-top: 20px;
+  
+    border: 2 px  solid red;
+
+  
+ }
+
+ .photo1 img {
+   width: 80%;
+   /* display: block; */
+ }
+ .remove {
+   padding: 10px;
+   background-color: bisque;
+   
+ }
+
+
+
+
+.hidden {
+    display: none;
+}
+
+
+ 
