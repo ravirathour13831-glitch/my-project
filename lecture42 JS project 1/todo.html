@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Todo App</title>
+
+    <style>
+  
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f1f5f9;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 900px;
+    background-color: white;
+
+    padding: 40px;
+
+    border-radius: 20px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+
+/* =========================
+   HEADING
+========================= */
+
+h1 {
+    text-align: center;
+    margin-bottom: 35px;
+    color: #1e293b;
+}
+
+h2 {
+    margin-top: 45px;
+    margin-bottom: 20px;
+    color: #334155;
+}
+
+
+/* =========================
+   FORM
+========================= */
+
+#todoForm {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* =========================
+   INPUT
+========================= */
+
+#name {
+    flex: 1;
+
+    height: 66px;
+
+    padding: 18px;
+
+    font-size: 20px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 12px;
+
+    outline: none;
+}
+
+#name:focus {
+    border-color: #2563eb;
+}
+
+
+/* =========================
+   ADD BUTTON
+========================= */
+
+.add-btn {
+    width: 100px;
+    height: 60px;
+    background-color: blue;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.add-btn:hover {
+    background-color: darkblue;
+}
+
+
+/* =========================
+   TODO LIST
+========================= */
+
+#list {
+    list-style: none;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+
+/* =========================
+   TODO ITEM
+========================= */
+
+.todo-item {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 15px 25px;
+
+    background-color: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+}
+
+
+/* =========================
+   LEFT SIDE
+========================= */
+
+.todo-left {
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    font-size: 20px;
+}
+
+
+/* =========================
+   CHECKBOX
+========================= */
+
+.todo-checkbox {
+    width: 22px;
+
+    height: 22px;
+
+    cursor: pointer;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.todo-buttons {
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+}
+
+
+/* =========================
+   EDIT + DELETE
+========================= */
+
+.edit-btn,
+.delete-btn {
+    border: none;
+
+    padding: 10px 25px;
+
+    border-radius: 8px;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+
+/* EDIT */
+
+.edit-btn {
+    background-color: #f59e0b;
+}
+
+.edit-btn:hover {
+    background-color: #d97706;
+}
+
+
+/* DELETE */
+
+.delete-btn {
+    background-color: #ef4444;
+}
+
+.delete-btn:hover {
+    background-color: #dc2626;
+}
+
+
+/* =========================
+   COMPLETED TODO
+========================= */
+
+.todo-item.completed .todo-text {
+    text-decoration: line-through;
+
+    color: #94a3b8;
+}
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>📝 Todo App</h1>
+
+        <form id="todoForm">
+
+            <input
+                type="text"
+                id="name"
+                placeholder="Enter your todo..."
+            >
+
+            <button class="add-btn">Add</button>
+
+        </form>
+
+        <h2>Todo List</h2>
+
+        <ul id="list"> 
+            
+        </ul>
+
+    </div>
+
+    <script src="todo.js"></script>
+
+</body>
+
+</html>

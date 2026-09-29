@@ -4,7 +4,7 @@ let btn = document.querySelector("#reveal-gift")
 
 let h1 = document.querySelector("#gift")
 
- const revealgift = () => {
+const revealgift = () => {
     h1.classList.toggle("hidden")
 }
 // function revealgift(Event){
@@ -12,7 +12,7 @@ let h1 = document.querySelector("#gift")
 // }
 
 
-btn.addEventListener('click' , revealgift) 
+btn.addEventListener('click', revealgift)
 
 
 
@@ -38,13 +38,14 @@ btn.addEventListener('click' , revealgift)
 
 
 
- let photo = document.querySelectorAll(".photo1");
+let photo = document.querySelectorAll(".photo1");
 
 let btns = document.querySelectorAll(".remove");
 
-btns.forEach(function(btn) {
 
-    btn.addEventListener("click", function(e) {
+btns.forEach(function (btn) {
+
+    btn.addEventListener("click", function (e) {
 
         btn.parentElement.remove();
 

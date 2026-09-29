@@ -11,19 +11,19 @@ const country = document.querySelector("#country")
 const passwordHint = document.querySelector("#password-hint")
 const password = document.querySelector("#password")
 
-function validuser(username){
+function validuser(username) {
 
     // **trim** exrta space ko kAT deta hai 
 
-     if (username.value.trim().length=== 0){   
+    if (username.value.trim().length === 0) {
         console.log("enter you name");
         return false
     }
     return true
 }
 
-function validpassword(password){
-  if (username.value.trim().length=== 8){   
+function validpassword(password) {
+    if (username.value.trim().length === 8) {
         console.log("enter you name");
         return false
     }
@@ -37,21 +37,21 @@ form.addEventListener("submit", (e) => {
 
     // const password= document.querySelector("#password")
 
-   const isusernamevalid = validuser(username);
-   const ispasswordvalid = validuser(password);
+    const isusernamevalid = validuser(username);
+    const ispasswordvalid = validuser(password);
 
-   if(isusernamevalid){
-    document.querySelector("h1").classList.remove("hidden");
-
-
+    if (isusernamevalid) {
+        document.querySelector("h1").classList.remove("hidden");
 
 
 
 
-    // const email = document.querySelector("#email").value;
 
-    // console.log({ name: username.value, password: password.value, email });
-});
+
+        // const email = document.querySelector("#email").value;
+
+        // console.log({ name: username.value, password: password.value, email });
+    });
 
 username.addEventListener("input", (e) => {
     console.log(username.value)

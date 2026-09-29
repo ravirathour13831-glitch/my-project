@@ -1,0 +1,289 @@
+/* HTML: <div class="loader"></div> */
+.loader {
+  width: 30px;
+  padding: 8px;
+  margin: 50px auto;
+  justify-self: center;
+    grid-column: 1 / -1;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #25b09b;
+  --_m: 
+    conic-gradient(#0000 10%,#000),
+    linear-gradient(#000 0 0) content-box;
+  -webkit-mask: var(--_m);
+          mask: var(--_m);
+  -webkit-mask-composite: source-out;
+          mask-composite: subtract;
+  animation: l3 1s infinite linear;
+}
+@keyframes l3 {to{transform: rotate(1turn)}}
+
+
+/* ========================
+body ka background color
+======================== */
+body{
+  background: #03030a;
+  color: white;
+  max-width: 1200px;
+    margin: auto;
+    padding: 30px 20px;
+}
+
+h1{
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff,
+  0 0 30px #ff00cc;
+
+}
+#movieInput {
+  flex: 1;
+   padding: 12px 16px;
+    background: #080812;
+    color: white;
+    border: 1px solid #00ffff;
+    border-radius: 14px;
+    outline: none;
+    font-size: 16px;
+}
+form button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #00ffff, #ff00cc);
+    color: black;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+form button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #00ffff, 0 0 30px #ff00cc;
+}
+#movieInput:focus {
+    border-color: #ff00cc;
+    box-shadow: 0 0 10px #00ffff, 0 0 25px #ff00cc;
+}
+form {
+    background: #ffffff08;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 20px #00ffff33;
+}
+#movieInput::placeholder {
+    color: #888;
+    transition: 0.3s;
+}
+
+#movieInput:focus::placeholder {
+    color: #00ffff;
+}
+::selection {
+    background-color: red;
+    color: white;
+}
+form{
+  display: flex;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid #00ffff;
+  border-radius: 20px;
+}
+
+#movieHub{
+  display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 30px;
+}
+
+.movie-card{
+  overflow: hidden;
+  background: #0c0c16;
+  border: 1px solid #ffffff22;
+    border-radius: 20px;
+      cursor: pointer;
+  transition: 0.4s;
+
+}
+
+
+.movie-card img {
+  width: 100%;
+  height: 300px;
+   object-fit: cover;
+   display: block;
+      transition: 0.5s;
+}
+.movie-card:hover img {
+    transform: scale(1.1);
+}
+
+.movie-card p {
+    margin: 8px 12px;
+}
+
+.movie-card:hover p:first-of-type {
+font-size: 18px;    
+  font-weight: bold;
+    color: #00ffff;
+}
+.movie-card p:last-of-type {
+    color: #aaa;
+    font-size: 14px;
+}
+
+.movie-card:hover  {
+  transform: translateY(-15px) scale(1.04);
+  box-shadow:0 0 15px #00ffff, 0 0 40px #ff00cc ;
+}
+
+
+
+
+
+/* =========================
+   MOVIE DETAILS PAGE
+========================= */
+
+.movie-detail {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 30px;
+
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 40px;
+
+    background: #ffffff08;
+    border: 1px solid #00ffff55;
+    border-radius: 25px;
+
+    box-shadow:
+        0 0 20px #00ffff33,
+        0 0 50px #ff00cc22;
+
+    backdrop-filter: blur(15px);
+}
+
+
+/* Poster */
+
+.movie-detail img {
+    width: 100%;
+    border-radius: 20px;
+
+    border: 2px solid #00ffff;
+
+    box-shadow:
+        0 0 15px #00ffff,
+        0 0 35px #ff00cc;
+
+    transition: 0.5s;
+}
+
+
+/* Poster hover */
+
+.movie-detail img:hover {
+    transform: scale(1.05) rotate(-2deg);
+
+    box-shadow:
+        0 0 25px #00ffff,
+        0 0 60px #ff00cc;
+}
+
+
+/* Movie title */
+
+.movie-detail h2 {
+    color: #00ffff;
+    font-size: 32px;
+
+    text-shadow:
+        0 0 10px #00ffff,
+        0 0 25px #ff00cc;
+}
+
+
+/* Movie information */
+
+.movie-detail p {
+    color: #ddd;
+    line-height: 1.6;
+}
+
+
+/* Information sections */
+
+.movie-detail section {
+    display: inline-block;
+
+    margin: 8px;
+    padding: 10px 15px;
+
+    background: #00ffff0d;
+    border: 1px solid #00ffff33;
+    border-radius: 12px;
+}
+
+
+/* Section heading */
+
+.movie-detail section p:first-child {
+    color: #00ffff;
+    font-weight: bold;
+}
+
+
+/* Plot */
+
+.movie-detail > div:nth-child(2) > div {
+    margin-top: 20px;
+    padding: 15px;
+
+    border-left: 3px solid #ff00cc;
+
+    background: #ff00cc08;
+}
+
+
+/* Plot heading */
+
+.movie-detail > div:nth-child(2) > div > p:first-child {
+    color: #ff00cc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+/* Hover on information */
+
+.movie-detail section:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 0 10px #00ffff55;
+
+    transition: 0.3s;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    .movie-detail {
+        grid-template-columns: 1fr;
+        padding: 20px;
+    }
+
+    .movie-detail img {
+        max-width: 300px;
+        margin: auto;
+    }
+
+    .movie-detail h2 {
+        font-size: 25px;
+    }
+}

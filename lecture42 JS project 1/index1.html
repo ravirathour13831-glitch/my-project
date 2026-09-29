@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-white">
+    <div class="max-w-md m-auto justify-center mt-4 bg-yellow-100 ">
+
+        <div class="m-auto">
+            <h1 class="text-black font-bold text-2xl px-12 py-8  bg-green-100 justify-center uppercase text-center">My todo App</h1>
+
+        </div>
+        <form class="flex justify-center gap-10 m-6" id="todo-form" action="">
+            <input  class="hover:border-2 border-black py-3 px-2 bg-red-100 text-s-" placeholder="please Enter your todo"  id="todo-input" type="text">
+            <button id="disco" class="bg-purple-700 rounded-md text-emerald-200 px-2 py-1 hover:bg-red-200 duration-100">Add Aodo</button>
+
+        </form>
+        <div class="pl-2">
+
+        <h2 class="pl-2 pt-2 text-lg font-semibold">Todo List:</h2>
+    <ol type="A" class="pl-2 pt-2 flex-col gap-6 border-t-1 pb-3-4 uppercase border-black" id="todo-list"></ol>
+
+        </div>
+        <script src="index2.js"></script>
+
+    </div>
+
+
+</body>
+
+</html>
