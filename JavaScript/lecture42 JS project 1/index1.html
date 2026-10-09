@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Todo App</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-white">
+
+    <div class="max-w-md mx-auto mt-4 bg-yellow-100">
+
+        <!-- Heading -->
+        <h1 class="text-black font-bold text-2xl py-8 bg-green-100 text-center uppercase">
+            My Todo App
+        </h1>
+
+        <!-- Form -->
+        <form class="flex justify-center gap-10 m-6" id="todo-form">
+
+            <input
+                class="border border-transparent hover:border-2 hover:border-black py-3 px-2 bg-red-100"
+                placeholder="please Enter your todo"
+                id="todo-input"
+                type="text"
+            >
+
+            <button
+                id="disco"
+                class="bg-gray-400 rounded-md text-emerald-200 px-3 py-1 hover:bg-red-200 duration-100 cursor-pointer"
+            >
+                Add Todo
+            </button>
+
+        </form >
+
+        <!-- Todo List -->
+        <div class="px-3 pb-4">
+
+            <h2 class="pt-2 text-lg font-semibold uppercase">
+                Todo List:
+            </h2>
+
+            <ol
+                class="pt-2 border-t border-black"
+                id="todo-list"
+            >
+            </ol>
+
+        </div>
+
+    </div>
+
+    <script  src="index2.js"></script>
+
+</body>
+</html>

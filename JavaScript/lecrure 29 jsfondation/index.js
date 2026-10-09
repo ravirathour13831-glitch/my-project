@@ -135,10 +135,15 @@ let product2 = {
   branch : "cs"
 
 }
- for( value in product2){
-  console.log(value);
+ for( ele in product2){
+  console.log(ele);
 
 }
+
+console.log(Object.keys(product2))
+console.log(Object.values(product2))
+
+
 
 
 function c(b){
