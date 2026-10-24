@@ -37,4 +37,4 @@ console.log(arr.some(num => num > 6));
 
 /////////////// out put //////////////
 7
-true
+

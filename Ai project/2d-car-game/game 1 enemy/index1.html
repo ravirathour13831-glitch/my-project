@@ -1,0 +1,372 @@
+
+
+<!-- VS Code में `index.html` फ़ाइल बनाओ और यह पूरा कोड पेस्ट करो: -->
+
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Battle Island 2D</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101820;color:white;font-family:Arial,sans-serif;text-align:center}
+h1{color:#ffd54a;margin:12px 0 5px}
+#hud{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;padding:10px}
+canvas{display:block;width:min(96vw,1000px);height:auto;margin:auto;border:3px solid #f5d76e;cursor:crosshair;background:#6aab52}
+button{padding:11px 20px;margin:10px;background:#ffca28;border:0;border-radius:8px;font-weight:bold;cursor:pointer}
+p{margin:8px}
+</style>
+</head>
+<body>
+<h1>🏝️ BATTLE ISLAND</h1>
+<div id="hud">
+  <span>❤️ Health: <b id="health">100</b></span>
+  <span>🎯 Kills: <b id="kills">0</b></span>
+  <span>👾 Enemies: <b id="remaining">12</b></span>
+</div>
+<canvas id="game" width="1000" height="650"></canvas>
+<p>Move: WASD / Arrow Keys | Aim: Mouse | Shoot: Click enemy</p>
+<button id="restart">RESTART GAME</button>
+<p id="message">Mission: सभी दुश्मनों को हराओ!</p>
+
+<script>
+const canvas = document.querySelector("#game");
+const ctx = canvas.getContext("2d");
+const healthText = document.querySelector("#health");
+const killsText = document.querySelector("#kills");
+const remainingText = document.querySelector("#remaining");
+const message = document.querySelector("#message");
+
+const WORLD = { w: 2200, h: 1600 };
+const keys = {};
+let player, enemies, bullets, obstacles, kills, health, ended;
+let camera = { x: 0, y: 0 };
+let mouse = { x: 500, y: 325 };
+
+function random(min,max) {
+  return Math.random() * (max-min) + min;
+}
+
+function reset() {
+  player = { x: 1100, y: 800, r: 17, speed: 3.5, angle: 0 };
+  enemies = [];
+  bullets = [];
+  obstacles = [];
+  kills = 0;
+  health = 100;
+  ended = false;
+
+  // Houses, rocks and trees
+  for(let i=0; i<65; i++) {
+    obstacles.push({
+      x: random(70,WORLD.w-100),
+      y: random(70,WORLD.h-100),
+      w: random(35,85),
+      h: random(35,85),
+      type: Math.random() > .5 ? "tree" : "house"
+    });
+  }
+
+  // Spawn enemies away from player
+  for(let i=0; i<12; i++) {
+    let x,y;
+    do {
+      x = random(100,WORLD.w-100);
+      y = random(100,WORLD.h-100);
+    } while(Math.hypot(x-player.x,y-player.y)<300);
+
+    enemies.push({
+      x,y,r:17,hp:100,speed:random(.45,.8),
+      color:["#e74c3c","#8e44ad","#34495e"][i%3],
+      alive:true
+    });
+  }
+
+  updateHUD();
+  message.textContent = "Mission: सभी दुश्मनों को हराओ!";
+  draw();
+}
+
+function updateHUD() {
+  healthText.textContent = health;
+  killsText.textContent = kills;
+  remainingText.textContent = enemies.filter(e=>e.alive).length;
+}
+
+function drawPerson(x,y,color,angle,isPlayer=false) {
+  // Shadow
+  ctx.fillStyle="#0004";
+  ctx.beginPath();
+  ctx.ellipse(x,y+7,16,10,0,0,Math.PI*2);
+  ctx.fill();
+
+  // Legs
+  ctx.strokeStyle="#20252b";
+  ctx.lineWidth=7;
+  ctx.beginPath();
+  ctx.moveTo(x-5,y+7);
+  ctx.lineTo(x-7,y+15);
+  ctx.moveTo(x+5,y+7);
+  ctx.lineTo(x+7,y+15);
+  ctx.stroke();
+
+  // Body
+  ctx.fillStyle=color;
+  ctx.beginPath();
+  ctx.arc(x,y,12,0,Math.PI*2);
+  ctx.fill();
+
+  // Head
+  ctx.fillStyle="#e5b58b";
+  ctx.beginPath();
+  ctx.arc(x,y-10,7,0,Math.PI*2);
+  ctx.fill();
+
+  // Weapon points towards target
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(angle);
+  ctx.fillStyle="#202020";
+  ctx.fillRect(5,-3,24,6);
+  ctx.fillStyle="#aaa";
+  ctx.fillRect(22,-2,9,4);
+  ctx.restore();
+
+  if(isPlayer) {
+    ctx.strokeStyle="#fff";
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.arc(x,y,20,0,Math.PI*2);
+    ctx.stroke();
+  }
+}
+
+function drawWorld() {
+  ctx.fillStyle="#72b957";
+  ctx.fillRect(0,0,WORLD.w,WORLD.h);
+
+  // Grass pattern
+  ctx.fillStyle="#65ad4c";
+  for(let x=0;x<WORLD.w;x+=90) {
+    for(let y=0;y<WORLD.h;y+=90) {
+      ctx.fillRect(x+10,y+15,22,3);
+    }
+  }
+
+  // Roads
+  ctx.fillStyle="#b6ad8c";
+  ctx.fillRect(0,390,WORLD.w,95);
+  ctx.fillRect(950,0,100,WORLD.h);
+  ctx.fillStyle="#f5edc5";
+  for(let x=0;x<WORLD.w;x+=75) ctx.fillRect(x,435,35,4);
+  for(let y=0;y<WORLD.h;y+=75) ctx.fillRect(998,y,4,35);
+
+  // Obstacles
+  for(const o of obstacles) {
+    if(o.type==="tree") {
+      ctx.fillStyle="#59452b";
+      ctx.fillRect(o.x+o.w*.4,o.y+o.h*.5,12,25);
+      ctx.fillStyle="#24713a";
+      ctx.beginPath();
+      ctx.arc(o.x+o.w/2,o.y+o.h/2,o.w*.55,0,Math.PI*2);
+      ctx.fill();
+      ctx.fillStyle="#398b43";
+      ctx.beginPath();
+      ctx.arc(o.x+o.w*.4,o.y+o.h*.35,o.w*.32,0,Math.PI*2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle="#8d674c";
+      ctx.fillRect(o.x,o.y,o.w,o.h);
+      ctx.fillStyle="#d8c5a5";
+      ctx.fillRect(o.x+5,o.y+5,o.w-10,o.h-10);
+      ctx.fillStyle="#4b5660";
+      ctx.fillRect(o.x+o.w*.4,o.y+o.h*.4,o.w*.2,o.h*.2);
+    }
+  }
+}
+
+function draw() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  camera.x = Math.max(0,Math.min(
+    WORLD.w-canvas.width,player.x-canvas.width/2
+  ));
+  camera.y = Math.max(0,Math.min(
+    WORLD.h-canvas.height,player.y-canvas.height/2
+  ));
+
+  ctx.save();
+  ctx.translate(-camera.x,-camera.y);
+
+  drawWorld();
+
+  for(const e of enemies) {
+    if(!e.alive) continue;
+    drawPerson(e.x,e.y,e.color,Math.atan2(player.y-e.y,player.x-e.x));
+
+    ctx.fillStyle="#222";
+    ctx.fillRect(e.x-18,e.y-31,36,5);
+    ctx.fillStyle="#ff4040";
+    ctx.fillRect(e.x-18,e.y-31,36*e.hp/100,5);
+  }
+
+  for(const b of bullets) {
+    ctx.fillStyle="#ffe66d";
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,4,0,Math.PI*2);
+    ctx.fill();
+  }
+
+  drawPerson(player.x,player.y,"#16b9e9",player.angle,true);
+
+  ctx.restore();
+
+  // Mini map
+  ctx.fillStyle="#101820dd";
+  ctx.fillRect(canvas.width-155,12,143,108);
+  ctx.strokeStyle="white";
+  ctx.strokeRect(canvas.width-155,12,143,108);
+
+  ctx.fillStyle="#b3ed89";
+  for(const e of enemies) {
+    if(!e.alive) continue;
+    ctx.fillRect(
+      canvas.width-155+e.x/WORLD.w*143,
+      12+e.y/WORLD.h*108,4,4
+    );
+  }
+
+  ctx.fillStyle="#38dfff";
+  ctx.fillRect(
+    canvas.width-155+player.x/WORLD.w*143-2,
+    12+player.y/WORLD.h*108-2,6,6
+  );
+}
+
+function shoot(targetX,targetY) {
+  if(ended) return;
+
+  const angle = Math.atan2(targetY-player.y,targetX-player.x);
+  player.angle = angle;
+
+  bullets.push({
+    x:player.x+Math.cos(angle)*28,
+    y:player.y+Math.sin(angle)*28,
+    vx:Math.cos(angle)*11,
+    vy:Math.sin(angle)*11,
+    life:55
+  });
+}
+
+function update() {
+  if(ended) return;
+
+  let dx=0,dy=0;
+  if(keys.a||keys.ArrowLeft) dx--;
+  if(keys.d||keys.ArrowRight) dx++;
+  if(keys.w||keys.ArrowUp) dy--;
+  if(keys.s||keys.ArrowDown) dy++;
+
+  const len=Math.hypot(dx,dy)||1;
+  player.x=Math.max(20,Math.min(WORLD.w-20,player.x+dx/len*player.speed));
+  player.y=Math.max(20,Math.min(WORLD.h-20,player.y+dy/len*player.speed));
+
+  // Enemies chase the player
+  for(const e of enemies) {
+    if(!e.alive) continue;
+
+    const ex=player.x-e.x, ey=player.y-e.y;
+    const distance=Math.hypot(ex,ey)||1;
+
+    if(distance>35) {
+      e.x+=ex/distance*e.speed;
+      e.y+=ey/distance*e.speed;
+    } else if(Math.random()<.025) {
+      health=Math.max(0,health-5);
+      updateHUD();
+    }
+  }
+
+  for(const b of bullets) {
+    b.x+=b.vx;
+    b.y+=b.vy;
+    b.life--;
+
+    for(const e of enemies) {
+      if(!e.alive) continue;
+
+      if(Math.hypot(b.x-e.x,b.y-e.y)<e.r+5) {
+        e.hp-=50;
+        b.life=0;
+
+        if(e.hp<=0) {
+          e.alive=false;
+          kills++;
+          updateHUD();
+        }
+        break;
+      }
+    }
+  }
+
+  bullets=bullets.filter(b=>b.life>0);
+  updateHUD();
+
+  if(health<=0) {
+    ended=true;
+    message.textContent="💥 GAME OVER! Restart dabao.";
+  }
+
+  if(enemies.every(e=>!e.alive)) {
+    ended=true;
+    message.textContent="🏆 WINNER! Tumne sabhi enemies ko hara diya!";
+  }
+
+  draw();
+  requestAnimationFrame(update);
+}
+
+function pointerPosition(event) {
+  const rect=canvas.getBoundingClientRect();
+  return {
+    x:(event.clientX-rect.left)*canvas.width/rect.width+camera.x,
+    y:(event.clientY-rect.top)*canvas.height/rect.height+camera.y
+  };
+}
+
+canvas.addEventListener("mousemove",event=>{
+  const p=pointerPosition(event);
+  player.angle=Math.atan2(p.y-player.y,p.x-player.x);
+});
+
+canvas.addEventListener("click",event=>{
+  const p=pointerPosition(event);
+  shoot(p.x,p.y);
+});
+
+document.addEventListener("keydown",event=>{
+  keys[event.key.toLowerCase()]=true;
+  keys[event.key]=true;
+
+  if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"," "].includes(event.key)) {
+    event.preventDefault();
+  }
+});
+
+document.addEventListener("keyup",event=>{
+  keys[event.key.toLowerCase()]=false;
+  keys[event.key]=false;
+});
+
+document.querySelector("#restart").addEventListener("click",()=>{
+  reset();
+  requestAnimationFrame(update);
+});
+
+reset();
+requestAnimationFrame(update);
+</script>
+</body>
+</html>

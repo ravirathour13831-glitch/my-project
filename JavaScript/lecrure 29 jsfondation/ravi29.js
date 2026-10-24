@@ -26,16 +26,22 @@
 
 // }
 
-let i = 1
+// let i = 1
 
 
-while (i <= 10) {
-    if(i === 6){
-        break;
-    }
-    console.log(i);
-    i = i + 1;
+// while (i <= 10) {
+//     if(i === 6){
+//         break;
+//     }
+//     console.log(i);
+//     i = i + 1;
+// }
+
+
+function arr(){
+    setTimeout("hello"),2000
 }
+arr()
 
 
     

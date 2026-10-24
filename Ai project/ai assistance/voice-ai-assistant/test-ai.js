@@ -4,7 +4,7 @@ const dns = require("dns");
 
 dns.setDefaultResultOrder("ipv4first");
 
-const OpenAI = require("openai");
+const OpenAI = require("openai/index.js");
 
 const client = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,

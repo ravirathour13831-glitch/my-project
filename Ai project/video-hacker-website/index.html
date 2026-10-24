@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberTrace | Digital Footprint</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">CYBER<span>TRACE_</span></div>
+    <div class="status"><i></i> DEMO SYSTEM ONLINE</div>
+  </header>
+
+  <main class="container">
+
+    <section class="hero">
+      <p class="tag">DIGITAL FOOTPRINT INTELLIGENCE</p>
+      <h1>Explore Your <span>Digital Footprint</span></h1>
+      <p class="subtitle">
+        Review your own exported digital activity using this cyber-style dashboard.
+      </p>
+    </section>
+
+    <section class="card">
+      <p class="tag">IDENTITY SCANNER</p>
+      <h2>Enter an identifier</h2>
+
+      <form id="scanForm">
+        <label for="type">SELECT TYPE</label>
+        <select id="type">
+          <option>Email Address</option>
+          <option>Phone Number</option>
+          <option>Instagram ID</option>
+          <option>Facebook ID</option>
+        </select>
+
+        <label for="identifier">ENTER IDENTIFIER</label>
+        <input
+          id="identifier"
+          type="text"
+          placeholder="Enter your identifier..."
+          maxlength="150"
+          required
+        >
+
+        <button type="submit">▶ SCAN NOW</button>
+        <p class="hint">
+          Demo scan only. Private account data is not accessed.
+        </p>
+      </form>
+    </section>
+
+    <section id="report" class="card report hidden">
+      <div class="report-heading">
+        <div>
+          <p class="tag">SCAN REPORT</p>
+          <h2>Analysis Results</h2>
+        </div>
+        <span class="badge">DEMO</span>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <small>IDENTIFIER TYPE</small>
+          <strong id="resultType">Not checked</strong>
+        </div>
+        <div class="stat">
+          <small>PUBLIC DATA</small>
+          <strong>Not checked</strong>
+        </div>
+        <div class="stat">
+          <small>PRIVATE HISTORY</small>
+          <strong>Unavailable</strong>
+        </div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-header">
+          <span></span><span></span><span></span>
+          <small>cybertrace://terminal</small>
+        </div>
+        <pre id="output">Waiting for scan...</pre>
+      </div>
+
+      <h3>Digital Activity</h3>
+
+      <div class="activity">
+        <button type="button" class="activity-button" data-panel="websitePanel">
+          🌐 Website History
+          <span>＋</span>
+        </button>
+
+        <div id="websitePanel" class="history-panel hidden">
+          <p>Apni browser history ki exported file use karo. Browser history sirf ID se nahi mil sakti.</p>
+          <p>History ko browser se export karke dekhne ke liye apne browser ke official options ka use karo.</p>
+        </div>
+
+        <button type="button" class="activity-button" data-panel="videoPanel">
+          ▶ Video History
+          <span>＋</span>
+        </button>
+
+        <div id="videoPanel" class="history-panel hidden">
+          <p class="hint">
+            Apni YouTube watch history ki JSON file select karo.
+          </p>
+
+          <label for="historyFile">SELECT HISTORY JSON FILE</label>
+          <input
+            type="file"
+            id="historyFile"
+            accept=".json,application/json"
+          >
+
+          <button type="button" id="loadHistory">
+            LOAD MY VIDEO HISTORY
+          </button>
+
+          <p id="historyMessage" aria-live="polite"></p>
+          <div id="historyList"></div>
+        </div>
+
+        <button type="button" class="activity-button" data-panel="socialPanel">
+          📱 Social Profiles
+          <span>＋</span>
+        </button>
+
+        <div id="socialPanel" class="history-panel hidden">
+          <p>Instagram aur Facebook ki publicly available profile information manually check kar sakte ho.</p>
+          <p>Private messages aur private viewing history is tool se available nahi hain.</p>
+        </div>
+      </div>
+
+      <p class="notice">
+        Important: An email, phone number or social-media ID alone cannot
+        reveal private browsing or video history. This dashboard does not
+        perform a real account scan.
+      </p>
+    </section>
+
+  </main>
+
+  <footer>CYBERTRACE © 2026 — EDUCATIONAL DEMO</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

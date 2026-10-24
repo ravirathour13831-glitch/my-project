@@ -1,0 +1,342 @@
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crazy 2D Car Racing</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, #243b55, #050816);
+      font-family: Arial, sans-serif;
+      color: white;
+    }
+
+    .game {
+      text-align: center;
+      width: min(100%, 420px);
+      padding: 12px;
+    }
+
+    h1 {
+      color: #00f7ff;
+      text-shadow: 0 0 15px #00f7ff;
+      margin: 5px;
+    }
+
+    .score {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 360px;
+      height: auto;
+      margin: auto;
+      border: 3px solid #00f7ff;
+      border-radius: 12px;
+      box-shadow: 0 0 25px #00f7ff55;
+      background: #252a34;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 22px;
+      margin: 8px 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #00f7ff;
+      color: #07111d;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .controls button {
+      width: 90px;
+      font-size: 25px;
+    }
+
+    #message {
+      min-height: 24px;
+      color: #ffe66d;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game">
+    <h1>🏁 CRAZY RACER</h1>
+
+    <div class="score">
+      <span>Score: <span id="score">0</span></span>
+      <span>Best: <span id="best">0</span></span>
+    </div>
+
+    <canvas id="canvas" width="360" height="560"></canvas>
+
+    <p id="message">Arrow keys ya buttons se car chalao!</p>
+
+    <div class="controls">
+      <button id="left">⬅️</button>
+      <button id="right">➡️</button>
+    </div>
+
+    <button id="start">START / RESTART</button>
+  </div>
+
+  <script>
+    const canvas = document.querySelector("#canvas");
+    const ctx = canvas.getContext("2d");
+
+    const scoreText = document.querySelector("#score");
+    const bestText = document.querySelector("#best");
+    const message = document.querySelector("#message");
+
+    let car;
+    let enemies;
+    let score;
+    let roadOffset;
+    let frame;
+    let running = false;
+    let gameOver = false;
+    let animationId;
+
+    let best = Number(localStorage.getItem("racerBest")) || 0;
+    bestText.textContent = best;
+
+    const keys = {
+      left: false,
+      right: false
+    };
+
+    function resetGame() {
+      cancelAnimationFrame(animationId);
+
+      car = {
+        x: 155,
+        y: 455,
+        width: 42,
+        height: 72,
+        speed: 5
+      };
+
+      enemies = [];
+      score = 0;
+      roadOffset = 0;
+      frame = 0;
+      running = true;
+      gameOver = false;
+
+      scoreText.textContent = "0";
+      message.textContent = "Race shuru! Gाड़ियों se bacho!";
+      loop();
+    }
+
+    function drawRoad() {
+      ctx.fillStyle = "#176b37";
+      ctx.fillRect(0, 0, 360, 560);
+
+      ctx.fillStyle = "#30343b";
+      ctx.fillRect(35, 0, 290, 560);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(43, 0, 4, 560);
+      ctx.fillRect(313, 0, 4, 560);
+
+      ctx.fillStyle = "#f7e967";
+
+      for (let y = -50 + roadOffset; y < 560; y += 100) {
+        ctx.fillRect(130, y, 5, 48);
+        ctx.fillRect(225, y, 5, 48);
+      }
+
+      roadOffset = (roadOffset + 5) % 100;
+    }
+
+    function drawCar(x, y, color) {
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(x - 3, y + 12, 7, 18);
+      ctx.fillRect(x + 38, y + 12, 7, 18);
+      ctx.fillRect(x - 3, y + 47, 7, 18);
+      ctx.fillRect(x + 38, y + 47, 7, 18);
+
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y, 42, 72);
+
+      ctx.fillStyle = "#bdeaff";
+      ctx.fillRect(x + 7, y + 12, 28, 17);
+
+      ctx.fillStyle = "#16212b";
+      ctx.fillRect(x + 7, y + 40, 28, 15);
+
+      ctx.fillStyle = "#fff4bd";
+      ctx.fillRect(x + 5, y + 3, 9, 5);
+      ctx.fillRect(x + 28, y + 3, 9, 5);
+    }
+
+    function spawnEnemy() {
+      const lanes = [65, 112, 160, 208, 255];
+      const x = lanes[Math.floor(Math.random() * lanes.length)];
+
+      enemies.push({
+        x,
+        y: -80,
+        width: 42,
+        height: 72,
+        speed: 3 + Math.min(score / 300, 4),
+        color: ["#ff375f", "#a78bfa", "#f97316"][Math.floor(Math.random() * 3)]
+      });
+    }
+
+    function update() {
+      if (keys.left) car.x -= car.speed;
+      if (keys.right) car.x += car.speed;
+
+      car.x = Math.max(48, Math.min(270, car.x));
+
+      frame++;
+
+      if (frame % Math.max(25, 65 - Math.floor(score / 100)) === 0) {
+        spawnEnemy();
+      }
+
+      enemies.forEach(enemy => {
+        enemy.y += enemy.speed;
+
+        const hit =
+          car.x + 6 < enemy.x + enemy.width - 6 &&
+          car.x + car.width - 6 > enemy.x + 6 &&
+          car.y + 8 < enemy.y + enemy.height - 8 &&
+          car.y + car.height - 8 > enemy.y + 8;
+
+        if (hit) {
+          endGame();
+        }
+      });
+
+      enemies = enemies.filter(enemy => enemy.y < 580);
+
+      score++;
+      scoreText.textContent = score;
+    }
+
+    function draw() {
+      drawRoad();
+
+      enemies.forEach(enemy => {
+        drawCar(enemy.x, enemy.y, enemy.color);
+      });
+
+      drawCar(car.x, car.y, "#00e5ff");
+    }
+
+    function endGame() {
+      running = false;
+      gameOver = true;
+
+      if (score > best) {
+        best = score;
+        localStorage.setItem("racerBest", best);
+        bestText.textContent = best;
+      }
+
+      message.textContent = "💥 GAME OVER! Restart dabao.";
+    }
+
+    function loop() {
+      if (!running) return;
+
+      update();
+      draw();
+
+      if (running) {
+        animationId = requestAnimationFrame(loop);
+      } else {
+        draw();
+      }
+    }
+
+    document.querySelector("#start").addEventListener("click", resetGame);
+
+    document.querySelector("#left").addEventListener("pointerdown", () => {
+      keys.left = true;
+    });
+
+    document.querySelector("#right").addEventListener("pointerdown", () => {
+      keys.right = true;
+    });
+
+    function releaseKeys() {
+      keys.left = false;
+      keys.right = false;
+    }
+
+    document.addEventListener("pointerup", releaseKeys);
+    document.addEventListener("pointercancel", releaseKeys);
+    window.addEventListener("blur", releaseKeys);
+
+    document.addEventListener("keydown", event => {
+      if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
+        event.preventDefault();
+      }
+
+      if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+        keys.left = true;
+      }
+
+      if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+        keys.right = true;
+      }
+
+      if (event.key === "Enter" && !running) {
+        resetGame();
+      }
+    });
+
+    document.addEventListener("keyup", event => {
+      if (event.key === "ArrowLeft" || event.key.toLowerCase() === "a") {
+        keys.left = false;
+      }
+
+      if (event.key === "ArrowRight" || event.key.toLowerCase() === "d") {
+        keys.right = false;
+      }
+    });
+
+    drawRoad();
+
+    car = {
+      x: 155,
+      y: 455,
+      width: 42,
+      height: 72
+    };
+
+    drawCar(car.x, car.y, "#00e5ff");
+  </script>
+</body>
+</html>

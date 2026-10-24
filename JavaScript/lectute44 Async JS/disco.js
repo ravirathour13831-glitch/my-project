@@ -14,6 +14,7 @@ for (let i= 0; i<6; i++){
 
 let random = Math.floor(Math.random() * colorStr.length) +1
 color = color + colorStr[random]
+console.log(random)
 
 }
 body.style.backgroundColor = `#${color}`

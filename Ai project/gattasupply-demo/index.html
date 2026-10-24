@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GattaSupply</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <header>
+    <h1>📦 GattaSupply</h1>
+    <p>Gatta Boxes • Cartons • Packaging</p>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <h2>Your One-Stop Gatta Supply Store</h2>
+    <p>Find cardboard boxes for shops, factories and businesses.</p>
+    <a href="#products">Explore Products</a>
+
+
+    <section id="products">
+      <h2>Our Products</h2>
+
+      <div class="product">
+        <img src="https://placehold.co/400x250/e8f5ed/245b45?text=3+Ply+Carton+Box" alt="3 Ply Carton Box" />
+        <h3>3 Ply Carton Box</h3>
+        <p>Price: ₹18 per box</p>
+        <button>Add to Cart</button>
+      </div>
+
+      <div class="product">
+        <img src="https://placehold.co/400x250/e8f5ed/245b45?text=5+Ply+Carton+Box" alt="5 Ply Carton Box" />
+        <h3>5 Ply Carton Box</h3>
+        <p>Price: ₹32 per box</p>
+        <button>Add to Cart</button>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2>Need Custom Size?</h2>
+      <p>Request a quotation for your packaging needs.</p>
+      <button id="quoteBtn">Get a Quote</button>
+    </section>
+  </main>
+
+  <section id="cart-section">
+    <h2>🛒 Your Cart</h2>
+
+    <p>Total Items: <span id="cart-count">0</span></p>
+
+    <div id="cart-items"></div>
+
+    <h3>Total Price: ₹<span id="cart-total">0</span></h3>
+  </section>
+
+
+  <script src="main.js"></script>
+</body>
+
+</html>

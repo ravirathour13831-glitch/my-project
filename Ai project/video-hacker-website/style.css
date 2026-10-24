@@ -1,0 +1,375 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;700;800&display=swap');
+
+:root {
+  --green: #42ff9e;
+  --bg: #050a08;
+  --muted: #8ca69a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(ellipse at top, #103322, transparent 50%),
+    var(--bg);
+  color: #e7fff0;
+  font-family: Inter, Arial, sans-serif;
+  min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .12;
+  background-image:
+    linear-gradient(#42ff9e 1px, transparent 1px),
+    linear-gradient(90deg, #42ff9e 1px, transparent 1px);
+  background-size: 35px 35px;
+}
+
+.navbar {
+  min-height: 70px;
+  padding: 15px 7%;
+  border-bottom: 1px solid #183c2a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.logo {
+  font: 700 18px "Share Tech Mono", monospace;
+  letter-spacing: 2px;
+}
+
+.logo span,
+.hero h1 span {
+  color: var(--green);
+}
+
+.status,
+.tag {
+  font: 11px "Share Tech Mono", monospace;
+  letter-spacing: 2px;
+  color: var(--green);
+}
+
+.status i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background: var(--green);
+  border-radius: 50%;
+  box-shadow: 0 0 12px var(--green);
+  margin-right: 7px;
+}
+
+.container {
+  width: min(850px, 90%);
+  margin: auto;
+  position: relative;
+}
+
+.hero {
+  padding: 65px 0 30px;
+}
+
+.hero h1 {
+  font-size: clamp(32px, 6vw, 54px);
+  line-height: 1.15;
+  margin: 18px 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+.card {
+  background: linear-gradient(145deg, #101e17, #09100d);
+  border: 1px solid #244b35;
+  padding: 27px;
+  border-radius: 12px;
+  box-shadow: 0 15px 45px #0006;
+}
+
+h2 {
+  margin: 8px 0 24px;
+  font-size: 22px;
+}
+
+label {
+  display: block;
+  font: 11px "Share Tech Mono", monospace;
+  color: #a8c9b5;
+  margin: 20px 0 9px;
+  letter-spacing: 1px;
+}
+
+select,
+input[type="text"],
+input[type="file"] {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid #2d5940;
+  border-radius: 6px;
+  background: #050c08;
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+select:focus,
+input:focus {
+  border-color: var(--green);
+}
+
+button {
+  font-family: "Share Tech Mono", monospace;
+  cursor: pointer;
+}
+
+form > button,
+#loadHistory {
+  margin-top: 23px;
+  width: 100%;
+  min-height: 49px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--green);
+  color: #041109;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 12px;
+}
+
+form > button:hover,
+#loadHistory:hover {
+  background: #a1ffc9;
+  box-shadow: 0 0 22px #42ff9e35;
+}
+
+.hint {
+  color: #91a99b;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+form .hint {
+  text-align: center;
+}
+
+.report {
+  margin-top: 25px;
+  animation: appear .4s ease;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.report-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.badge {
+  border: 1px solid #8b7034;
+  color: #ffd77a;
+  font: 10px "Share Tech Mono", monospace;
+  padding: 8px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.stat {
+  border: 1px solid #244b35;
+  background: #07100b;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
+.stat small,
+.stat strong {
+  display: block;
+}
+
+.stat small {
+  color: #8ca69a;
+  font: 10px "Share Tech Mono", monospace;
+}
+
+.stat strong {
+  color: var(--green);
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.terminal {
+  background: #020604;
+  border: 1px solid #27583b;
+  border-radius: 7px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  background: #102018;
+  border-bottom: 1px solid #27583b;
+}
+
+.terminal-header span {
+  width: 7px;
+  height: 7px;
+  background: #3f7555;
+  border-radius: 50%;
+}
+
+.terminal-header small {
+  margin-left: 8px;
+  color: #a2c6ae;
+  font: 10px "Share Tech Mono", monospace;
+}
+
+pre {
+  min-height: 170px;
+  margin: 0;
+  padding: 17px;
+  color: var(--green);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 12px/1.9 "Share Tech Mono", monospace;
+}
+
+.activity {
+  display: grid;
+  gap: 10px;
+}
+
+.activity-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 15px;
+  background: #07100b;
+  border: 1px solid #244b35;
+  border-radius: 6px;
+  color: #e7fff0;
+  text-align: left;
+  font-size: 13px;
+}
+
+.activity-button:hover {
+  border-color: var(--green);
+}
+
+.activity-button span {
+  color: var(--green);
+}
+
+.history-panel {
+  padding: 15px;
+  border: 1px solid #244b35;
+  background: #050c08;
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+#historyMessage {
+  color: var(--green);
+  overflow-wrap: anywhere;
+}
+
+.history-item {
+  padding: 14px;
+  margin-top: 10px;
+  background: #07100b;
+  border: 1px solid #244b35;
+  border-radius: 7px;
+  overflow-wrap: anywhere;
+}
+
+.history-item p {
+  color: #e7fff0;
+}
+
+.history-item small,
+.history-item a {
+  display: block;
+  margin-top: 8px;
+  color: var(--green);
+  font-size: 12px;
+}
+
+.notice {
+  color: #c8c7a5;
+  font-size: 12px;
+  line-height: 1.8;
+  margin-top: 20px;
+}
+
+footer {
+  position: relative;
+  text-align: center;
+  padding: 35px 10px;
+  color: #6b8e78;
+  font: 10px "Share Tech Mono", monospace;
+  letter-spacing: 1px;
+}
+
+@keyframes appear {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 15px 5%;
+  }
+
+  .logo {
+    font-size: 13px;
+  }
+
+  .status {
+    font-size: 8px;
+    letter-spacing: 0;
+  }
+
+  .hero {
+    padding-top: 45px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
