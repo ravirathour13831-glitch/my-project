@@ -1,651 +1,445 @@
+
+require("dotenv").config();
+
 const express = require("express");
+const path = require("path");
+const fs = require("fs");
 const { execFile, spawn } = require("child_process");
+const { GoogleGenAI } = require("@google/genai");
 
 const app = express();
-
-
-// ========================================
-// 📦 MIDDLEWARE
-// ========================================
+const PORT = 3000;
 
 app.use(express.json());
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 
+const ai = process.env.GEMINI_API_KEY
+  ? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
+  : null;
 
-// ========================================
-// 🌐 WEBSITE OPEN
-// ========================================
+// --------------------------------
+// COMMON FUNCTIONS
+// --------------------------------
+
+function reply(message) {
+  return message;
+}
 
 function openWebsite(url) {
-    execFile("cmd.exe", [
-        "/c",
-        "start",
-        "",
-        url
-    ]);
+  execFile(
+    "cmd.exe",
+    ["/d", "/c", "start", "", url],
+    (error) => {
+      if (error) console.error("Website error:", error.message);
+    }
+  );
 }
-
-
-// ========================================
-// 🔎 GOOGLE SEARCH
-// ========================================
 
 function googleSearch(query) {
+  openWebsite(
+    "https://www.google.com/search?q=" +
+    encodeURIComponent(query)
+  );
 
-    const url =
-        "https://www.google.com/search?q=" +
-        encodeURIComponent(query);
-
-    openWebsite(url);
+  return reply(`Google par ${query} search kar raha hoon.`);
 }
 
-
-// ========================================
-// 🎬 YOUTUBE SEARCH
-// ========================================
+function youtubeOpen() {
+  openWebsite("https://www.youtube.com/");
+  return reply("YouTube khol raha hoon.");
+}
 
 function youtubeSearch(query) {
+  const cleanQuery = String(query || "").trim();
 
-    const url =
-        "https://www.youtube.com/results?search_query=" +
-        encodeURIComponent(query);
+  if (!cleanQuery) return youtubeOpen();
 
-    openWebsite(url);
+  openWebsite(
+    "https://www.youtube.com/results?search_query=" +
+    encodeURIComponent(cleanQuery)
+  );
+
+  return reply(`YouTube par ${cleanQuery} search kar raha hoon.`);
 }
 
+// --------------------------------
+// OPEN APPLICATION
+// --------------------------------
 
-// ========================================
-// 🧮 SAFE CALCULATOR
-// ========================================
+function launchApplication(name) {
+  const appName = String(name || "").toLowerCase().trim();
 
-function calculateExpression(expression) {
+  const apps = {
+    "vscode": ["code", []],
+    "vs code": ["code", []],
+    "visual studio code": ["code", []],
+    "notepad": ["notepad.exe", []],
+    "calculator": ["calc.exe", []],
+    "कैलकुलेटर": ["calc.exe", []],
+    "नोटपैड": ["notepad.exe", []],
+  };
 
-    // केवल numbers और basic operators allow
-    if (!/^[0-9+\-*/().\s]+$/.test(expression)) {
-        return null;
-    }
+  const matchedName = Object.keys(apps).find(
+    key => appName === key
+  );
 
-    try {
+  if (!matchedName) return null;
 
-        const result =
-            Function(
-                `"use strict"; return (${expression})`
-            )();
+  const [program, args] = apps[matchedName];
 
-        if (
-            typeof result !== "number" ||
-            !Number.isFinite(result)
-        ) {
-            return null;
-        }
+  const child = spawn(program, args, {
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
+    shell: false,
+  });
 
-        return result;
+  child.on("error", error => {
+    console.error("App error:", error.message);
+  });
 
-    } catch (error) {
+  child.unref();
 
-        return null;
-    }
+  return reply(`${matchedName} open kar raha hoon.`);
 }
 
+// --------------------------------
+// OPEN FOLDER
+// --------------------------------
 
-// ========================================
-// 🧮 MATH COMMAND
-// ========================================
+function openRequestedFolder(folderName) {
+  if (!folderName) {
+    return reply("Folder ka full path batao.");
+  }
 
-function processCalculation(command) {
+  const folderPath = path.resolve(String(folderName));
 
-    let expression = command;
+  if (
+    !path.isAbsolute(folderPath) ||
+    !fs.existsSync(folderPath) ||
+    !fs.statSync(folderPath).isDirectory()
+  ) {
+    return reply("Folder nahi mila. Full path check karo.");
+  }
 
+  execFile("explorer.exe", [folderPath]);
 
-    // ========================================
-    // Hindi / English words remove
-    // ========================================
-
-    expression = expression
-        .replace("कितने होते हैं", "")
-        .replace("कितना होता है", "")
-        .replace("कितना होगा", "")
-        .replace("कितने होंगे", "")
-        .replace("कितना है", "")
-        .replace("calculate", "")
-        .replace("calculation", "")
-        .replace("गणना", "")
-        .replace("calculator", "")
-        .replace("कैलकुलेटर", "")
-        .trim();
-
-
-    // ========================================
-    // ENGLISH OPERATORS
-    // ========================================
-
-    expression = expression
-        .replace(/\bplus\b/gi, "+")
-        .replace(/\bminus\b/gi, "-")
-        .replace(/\binto\b/gi, "*")
-        .replace(/\btimes\b/gi, "*")
-        .replace(/\bdivide\b/gi, "/")
-        .replace(/\bdivided by\b/gi, "/");
-
-
-    // ========================================
-    // HINDI OPERATORS
-    // ========================================
-
-    expression = expression
-        .replace(/जोड़/gi, "+")
-        .replace(/प्लस/gi, "+")
-        .replace(/माइनस/gi, "-")
-        .replace(/घटा/gi, "-")
-        .replace(/गुणा/gi, "*")
-        .replace(/गुना/gi, "*")
-        .replace(/भाग/gi, "/")
-        .replace(/बटा/gi, "/");
-
-
-    // ========================================
-    // CALCULATE
-    // ========================================
-
-    const result =
-        calculateExpression(expression);
-
-
-    if (result === null) {
-        return null;
-    }
-
-
-    return {
-        expression: expression,
-        result: result
-    };
+  return reply("Folder open kar raha hoon.");
 }
 
+// --------------------------------
+// RUN NODE / REACT PROJECT
+// --------------------------------
 
-// ========================================
-// 🧹 CLEAN SEARCH QUERY
-// ========================================
+function runRequestedProject(folderName, preferredScript) {
+  if (!folderName) {
+    return reply("Project ka full folder path batao.");
+  }
 
-function cleanSearchQuery(command, words) {
+  const folderPath = path.resolve(String(folderName));
 
-    let query = command;
+  if (
+    !path.isAbsolute(folderPath) ||
+    !fs.existsSync(folderPath) ||
+    !fs.statSync(folderPath).isDirectory()
+  ) {
+    return reply("Project folder nahi mila.");
+  }
 
-    words.forEach(word => {
-        query = query.replace(word, "");
+  const packagePath = path.join(folderPath, "package.json");
+
+  if (!fs.existsSync(packagePath)) {
+    return reply("Is folder mein package.json nahi mila.");
+  }
+
+  try {
+    const packageData = JSON.parse(
+      fs.readFileSync(packagePath, "utf8")
+    );
+
+    const scripts = packageData.scripts || {};
+    const allowedScripts = ["dev", "start", "serve", "preview"];
+
+    let script = allowedScripts.includes(preferredScript)
+      ? preferredScript
+      : "";
+
+    if (!scripts[script]) {
+      script = allowedScripts.find(name => scripts[name]) || "";
+    }
+
+    if (!script) {
+      return reply("Project mein supported script nahi mili.");
+    }
+
+    const child = spawn("npm.cmd", ["run", script], {
+      cwd: folderPath,
+      detached: true,
+      stdio: "ignore",
+      windowsHide: true,
+      shell: false,
     });
 
-    return query.trim();
+    child.on("error", error => {
+      console.error("Project error:", error.message);
+    });
+
+    child.unref();
+
+    return reply(`Project ka ${script} command start kar raha hoon.`);
+  } catch (error) {
+    console.error(error);
+    return reply("Project start nahi ho paya.");
+  }
 }
 
+// --------------------------------
+// GEMINI AI BRAIN
+// --------------------------------
 
-// ========================================
-// 🧠 COMMAND PROCESSOR
-// ========================================
-
-function processCommand(command) {
-
-    command = String(command)
-        .toLowerCase()
-        .trim();
-
-
-    console.log(
-        "🧠 Processing:",
-        command
+async function askGemini(command) {
+  if (!ai) {
+    return reply(
+      "Gemini API key nahi mili. Apni .env file check karo."
     );
+  }
 
+  try {
+    const result = await ai.models.generateContent({
+      model: "gemini-flash-latest",
 
-    // ========================================
-    // 🧮 CALCULATOR / MATH
-    // ========================================
+      contents: `
+You are an intelligent Windows voice assistant.
+Understand Hindi, English and Hinglish.
 
-    // FIXED REGEX
-    const hasMath =
-        /[0-9]+\s*[+\-*/]\s*[0-9]+/.test(command);
+Understand the USER'S INTENTION, not just exact words.
 
+Return ONLY valid JSON in this format:
 
-    if (
-        hasMath ||
-        command.includes("कितने होते हैं") ||
-        command.includes("कितना होता है") ||
-        command.includes("कितना होगा") ||
-        command.includes("कितने होंगे") ||
-        command.includes("calculate") ||
-        command.includes("गणना")
-    ) {
-
-        const calculation =
-            processCalculation(command);
-
-
-        if (calculation !== null) {
-
-            return (
-                `${calculation.expression} = ` +
-                `${calculation.result}`
-            );
-        }
-    }
-
-
-    // ========================================
-    // ⏰ TIME
-    // ========================================
-
-    if (
-        command.includes("time") ||
-        command.includes("टाइम") ||
-        command.includes("समय") ||
-        command.includes("कितना टाइम") ||
-        command.includes("समय क्या") ||
-        command.includes("टाइम क्या")
-    ) {
-
-        const now =
-            new Date();
-
-
-        const time =
-            now.toLocaleTimeString(
-                "hi-IN",
-                {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true
-                }
-            );
-
-
-        return `अभी समय ${time} है`;
-    }
-
-
-    // ========================================
-    // 🎬 YOUTUBE
-    // ========================================
-
-    if (
-        command.includes("youtube") ||
-        command.includes("यूट्यूब") ||
-        command.includes("युटुब")
-    ) {
-
-        let query =
-            cleanSearchQuery(
-                command,
-                [
-                    "youtube",
-                    "यूट्यूब",
-                    "युटुब",
-                    "पर",
-                    "पे",
-                    "में",
-                    "खोलो",
-                    "खोल",
-                    "चलाओ",
-                    "देखो",
-                    "search",
-                    "सर्च",
-                    "करो"
-                ]
-            );
-
-
-        // YouTube search
-        if (query.length > 0) {
-
-            console.log(
-                "🔎 YouTube Search:",
-                query
-            );
-
-
-            youtubeSearch(query);
-
-
-            return (
-                `YouTube पर ${query} ` +
-                `search कर रहा हूँ`
-            );
-        }
-
-
-        // केवल YouTube open
-        openWebsite(
-            "https://www.youtube.com"
-        );
-
-
-        return "YouTube open हो गया";
-    }
-
-
-    // ========================================
-    // 🔎 GOOGLE
-    // ========================================
-
-    if (
-        command.includes("google") ||
-        command.includes("गूगल")
-    ) {
-
-        let query =
-            cleanSearchQuery(
-                command,
-                [
-                    "google",
-                    "गूगल",
-                    "पर",
-                    "पे",
-                    "में",
-                    "खोलो",
-                    "खोल",
-                    "search",
-                    "सर्च",
-                    "करो"
-                ]
-            );
-
-
-        // Google search
-        if (query.length > 0) {
-
-            console.log(
-                "🔎 Google Search:",
-                query
-            );
-
-
-            googleSearch(query);
-
-
-            return (
-                `Google पर ${query} ` +
-                `search कर रहा हूँ`
-            );
-        }
-
-
-        // केवल Google open
-        openWebsite(
-            "https://www.google.com"
-        );
-
-
-        return "Google open हो गया";
-    }
-
-
-    // ========================================
-    // 📸 INSTAGRAM
-    // ========================================
-
-    if (
-        command.includes("instagram") ||
-        command.includes("इंस्टाग्राम")
-    ) {
-
-        let query =
-            cleanSearchQuery(
-                command,
-                [
-                    "instagram",
-                    "इंस्टाग्राम",
-                    "पर",
-                    "पे",
-                    "में",
-                    "खोलो",
-                    "खोल",
-                    "ढूंढो",
-                    "ढूंढ",
-                    "दूंढो",
-                    "दूँढो",
-                    "search",
-                    "सर्च",
-                    "करो",
-                    "की id",
-                    "की आईडी",
-                    "की प्रोफाइल",
-                    "प्रोफाइल"
-                ]
-            );
-
-
-        // ========================================
-        // केवल Instagram खोलना
-        // ========================================
-
-        if (query.length === 0) {
-
-            openWebsite(
-                "https://www.instagram.com"
-            );
-
-            return "Instagram open हो गया";
-        }
-
-
-        // ========================================
-        // USERNAME CLEAN
-        // ========================================
-
-        // @ हटाना
-        query = query.replace("@", "");
-
-        // Extra spaces हटाना
-        query = query.trim();
-
-
-        // ========================================
-        // DIRECT INSTAGRAM PROFILE
-        // ========================================
-
-        const username =
-            query.replace(/\s+/g, "");
-
-
-        const instagramUrl =
-            "https://www.instagram.com/" +
-            encodeURIComponent(username) +
-            "/";
-
-
-        console.log(
-            "📸 Instagram Profile:",
-            instagramUrl
-        );
-
-
-        openWebsite(instagramUrl);
-
-
-        return (
-            `Instagram पर ${query} की ` +
-            `profile open कर रहा हूँ`
-        );
-    }
-
-
-    // ========================================
-    // 📘 FACEBOOK
-    // ========================================
-
-    if (
-        command.includes("facebook") ||
-        command.includes("फेसबुक")
-    ) {
-
-        openWebsite(
-            "https://www.facebook.com"
-        );
-
-
-        return "Facebook open हो गया";
-    }
-
-
-    // ========================================
-    // 📷 CAMERA
-    // ========================================
-
-    if (
-        command.includes("camera") ||
-        command.includes("कैमरा")
-    ) {
-
-        execFile(
-            "cmd.exe",
-            [
-                "/c",
-                "start",
-                "",
-                "microsoft.windows.camera:"
-            ]
-        );
-
-
-        return "Camera open हो गया";
-    }
-
-
-    // ========================================
-    // 🧮 WINDOWS CALCULATOR
-    // ========================================
-
-    if (
-        command.includes("calculator") ||
-        command.includes("कैलकुलेटर")
-    ) {
-
-        spawn(
-            "calc.exe",
-            [],
-            {
-                detached: true
-            }
-        );
-
-
-        return "Calculator open हो गया";
-    }
-
-
-    // ========================================
-    // 📝 NOTEPAD
-    // ========================================
-
-    if (
-        command.includes("notepad") ||
-        command.includes("नोटपैड")
-    ) {
-
-        spawn(
-            "notepad.exe",
-            [],
-            {
-                detached: true
-            }
-        );
-
-
-        return "Notepad open हो गया";
-    }
-
-
-    // ========================================
-    // ❓ UNKNOWN
-    // ========================================
-
-    return (
-        "Sorry, मुझे यह command " +
-        "समझ नहीं आई"
-    );
+{
+  "action": "youtube_open | youtube_search | google_search | open_app | open_folder | run_project | chat",
+  "query": "",
+  "name": "",
+  "script": "",
+  "reply": ""
 }
 
+RULES:
 
-// ========================================
-// 📡 COMMAND API
-// ========================================
+1. "YouTube kholo", "YouTube open karo":
+   action = youtube_open
 
-app.post(
-    "/command",
-    (req, res) => {
+2. "CID ka song chalao", "Arijit Singh song play karo",
+   "YouTube par comedy video dhundo":
+   action = youtube_search
+   query = only the actual song/video search topic.
 
-        const command =
-            String(
-                req.body.command || ""
-            );
+3. "Google par React search karo":
+   action = google_search
+   query = actual search topic.
 
+4. "VS Code kholo":
+   action = open_app
+   name = vscode
 
-        console.log("");
+5. "Calculator kholo":
+   action = open_app
+   name = calculator
 
-        console.log(
-            "🎙️ Command:",
-            command
-        );
+6. "Mera project chalao":
+   action = run_project
+   Only use a folder path if the user actually provided it.
+   Never invent a folder path.
+   script = dev or start if specified.
 
+7. "Mujhe JavaScript samjhao":
+   action = chat
+   reply = helpful answer in simple Hinglish.
 
-        const response =
-            processCommand(command);
+8. Never return shell commands or executable code.
+9. Never invent file paths.
+10. Keep replies short.
 
+User command: ${JSON.stringify(command)}
+`,
 
-        console.log(
-            "🤖 Assistant:",
-            response
-        );
+      config: {
+        responseMimeType: "application/json",
+      },
+    });
 
+    const raw = (result.text || "").trim();
 
-        res.json({
-            message: response
-        });
+    if (!raw) {
+      return reply("AI se response nahi mila.");
     }
-);
 
+    const data = JSON.parse(raw);
 
-// ========================================
-// 🚀 START SERVER
-// ========================================
+    switch (data.action) {
+      case "youtube_open":
+        return youtubeOpen();
 
-app.listen(
-    3000,
-    "0.0.0.0",
-    () => {
+      case "youtube_search":
+        return youtubeSearch(data.query || command);
 
-        console.log("");
+      case "google_search":
+        return googleSearch(data.query || command);
 
-        console.log(
-            "================================"
+      case "open_app":
+        return launchApplication(data.name) ||
+          reply("Ye application supported list mein nahi hai.");
+
+      case "open_folder":
+        return openRequestedFolder(data.name);
+
+      case "run_project":
+        return runRequestedProject(
+          data.name,
+          ["dev", "start", "serve", "preview"].includes(data.script)
+            ? data.script
+            : ""
         );
 
-        console.log(
-            "🤖 Voice AI Assistant"
-        );
+      case "chat":
+        return reply(data.reply || "Dobara command bolo.");
 
-        console.log(
-            "================================"
-        );
-
-        console.log(
-            "💻 Laptop:"
-        );
-
-        console.log(
-            "http://localhost:3000"
-        );
-
-        console.log(
-            "📱 Phone:"
-        );
-
-        console.log(
-            "http://172.27.248.231:3000"
-        );
-
-        console.log(
-            "================================"
-        );
-
-        console.log("");
+      default:
+        return reply("AI command samajh nahi paya.");
     }
-);
+
+  } catch (error) {
+    console.error("Gemini error:", error);
+
+    return reply(
+      "AI error: " + (error.message || "Unknown error")
+    );
+  }
+}
+
+// --------------------------------
+// MAIN COMMAND HANDLER
+// --------------------------------
+
+async function processCommand(command) {
+  if (typeof command !== "string" || !command.trim()) {
+    return reply("Koi command bolo.");
+  }
+
+  const c = command.trim().toLowerCase();
+
+  console.log("User command:", command);
+
+  // Time
+  if (
+    /\b(time|samay)\b/.test(c) ||
+    c.includes("kitne baje") ||
+    c.includes("समय")
+  ) {
+    return reply(
+      "Abhi samay hai " +
+      new Date().toLocaleTimeString("en-IN", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    );
+  }
+
+  // Direct YouTube opening
+  if (
+    c.includes("youtube") &&
+    /\b(open|kholo|khol)\b/.test(c)
+  ) {
+    return youtubeOpen();
+  }
+
+  // Direct YouTube searching
+  if (
+    c.includes("youtube") &&
+    /\b(search|dhundo|khojo|par|pe)\b/.test(c)
+  ) {
+    return youtubeSearch(command);
+  }
+
+  // Song/video commands without saying YouTube
+  if (
+    /\b(song|play|chalao|gana|gaana|video)\b/.test(c) ||
+    c.includes("गाना") ||
+    c.includes("चलाओ")
+  ) {
+    return youtubeSearch(command);
+  }
+
+  // Direct website opening
+  if (
+    c.includes("instagram") &&
+    /\b(open|kholo|khol)\b/.test(c)
+  ) {
+    openWebsite("https://www.instagram.com/");
+    return reply("Instagram khol raha hoon.");
+  }
+
+  if (
+    c.includes("facebook") &&
+    /\b(open|kholo|khol)\b/.test(c)
+  ) {
+    openWebsite("https://www.facebook.com/");
+    return reply("Facebook khol raha hoon.");
+  }
+
+  // Known applications
+  const appResult = launchApplication(c);
+
+  if (appResult) return appResult;
+
+  // Other commands go to Gemini
+  return await askGemini(command);
+}
+
+// --------------------------------
+// HEALTH CHECK
+// --------------------------------
+
+app.get("/health", (req, res) => {
+  res.json({
+    status: "OK",
+    message: "Voice AI Assistant running",
+  });
+});
+
+// --------------------------------
+// COMMAND API
+// --------------------------------
+
+app.post("/command", async (req, res) => {
+  try {
+    const command = req.body?.command;
+
+    const response = await processCommand(command);
+
+    res.json({
+      success: true,
+      message: response,
+    });
+
+  } catch (error) {
+    console.error("Command error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Command process karte waqt error aaya.",
+    });
+  }
+});
+
+// --------------------------------
+// START SERVER
+// --------------------------------
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("--------------------------------");
+  console.log("🤖 Voice AI Assistant Started");
+  console.log(`Website: http://localhost:${PORT}`);
+  console.log(`Health:  http://localhost:${PORT}/health`);
+  console.log("--------------------------------");
+});

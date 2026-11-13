@@ -1,177 +1,98 @@
 
 const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
+  window.SpeechRecognition || window.webkitSpeechRecognition;
 
-const recognition = new SpeechRecognition();
+const startBtn = document.querySelector("#startBtn");
+const output = document.querySelector("#output");
 
+let recognition = null;
+let listening = false;
 
-// ================================
-// 🎙️ SPEECH SETTINGS
-// ================================
-
-recognition.lang = "hi-IN";
-recognition.continuous = false;
-recognition.interimResults = false;
-
-
-// ================================
-// 🎯 ELEMENTS
-// ================================
-
-const startBtn =
-    document.querySelector("#startBtn");
-
-const output =
-    document.querySelector("#output");
-
-
-// ================================
-// 🎙️ START LISTENING
-// ================================
-
-startBtn.addEventListener("click", () => {
-
-    recognition.start();
-
-    output.textContent =
-        "🎙️ Sun raha hoon...";
-
-});
-
-
-// ================================
-// 🎤 VOICE → TEXT
-// ================================
-
-recognition.onresult = async (event) => {
-
-    const text =
-        event.results[0][0].transcript;
-
-    console.log("🎙️ User:", text);
-
-    output.textContent =
-        "Aapne bola: " + text;
-
-
-    // Node.js ko command bhejo
-    sendCommand(text);
-};
-
-
-// ================================
-// 📡 SEND COMMAND TO NODE
-// ================================
-
-async function sendCommand(command) {
-
-    try {
-
-        const response =
-            await fetch("/command", {
-
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    command: command
-                })
-
-            });
-
-
-        const data =
-            await response.json();
-
-
-        console.log(
-            "🤖 AI:",
-            data.message
-        );
-
-
-        // Screen par AI ka response
-        output.textContent =
-            "🤖 " + data.message;
-
-
-        // 🔊 AI ko bulwao
-        speak(data.message);
-
-
-    } catch (error) {
-
-        console.error(
-            "❌ Error:",
-            error
-        );
-
-        output.textContent =
-            "Server se connection nahi ho raha";
-    }
+function showMessage(message) {
+  if (output) output.textContent = message;
 }
-
-
-// ================================
-// 🔊 TEXT → SPEECH
-// ================================
 
 function speak(text) {
+  if (!("speechSynthesis" in window)) return;
 
-    // Agar pehle se koi voice chal rahi hai
-    speechSynthesis.cancel();
+  speechSynthesis.cancel();
 
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "hi-IN";
+  speech.rate = 1;
+  speech.pitch = 1;
+  speech.volume = 1;
 
-    const speech =
-        new SpeechSynthesisUtterance(text);
-
-
-    // Hindi voice
-    speech.lang = "hi-IN";
-
-    speech.rate = 1;
-
-    speech.pitch = 1;
-
-    speech.volume = 1;
-
-
-    speechSynthesis.speak(speech);
+  speechSynthesis.speak(speech);
 }
 
+async function sendCommand(command) {
+  try {
+    showMessage("Command process ho rahi hai: " + command);
 
-// ================================
-// ❌ RECOGNITION ERROR
-// ================================
+    const response = await fetch("/command", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ command }),
+    });
 
-recognition.onerror = (event) => {
+    if (!response.ok) {
+      throw new Error("Server status: " + response.status);
+    }
 
-    console.log(
-        "❌ Voice Error:",
-        event.error
-    );
+    const data = await response.json();
+    const message = data.message || "Koi response nahi mila.";
 
-    output.textContent =
-        "Voice error: " + event.error;
-};
+    showMessage("🤖 " + message);
+    speak(message);
+  } catch (error) {
+    console.error("Server error:", error);
+    showMessage("Server se connection nahi ho raha. Server check karo.");
+  }
+}
 
+if (!startBtn || !output) {
+  console.error("HTML mein #startBtn ya #output nahi mila.");
+} else if (!SpeechRecognition) {
+  startBtn.disabled = true;
+  showMessage("Is browser mein speech recognition support nahi hai. Microsoft Edge try karo.");
+} else {
+  recognition = new SpeechRecognition();
+  recognition.lang = "hi-IN";
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
-// ================================
-// ✅ SPEECH END
-// ================================
+  startBtn.addEventListener("click", () => {
+    if (listening) return;
 
-recognition.onend = () => {
+    try {
+      recognition.start();
+      listening = true;
+      showMessage("🎙️ Sun raha hoon... Ab command bolo.");
+    } catch (error) {
+      console.error("Mic start error:", error);
+      showMessage("Microphone start nahi hua. Dobara button dabao.");
+    }
+  });
 
-    console.log(
-        "🎙️ Listening stopped"
-    );
+  recognition.onresult = (event) => {
+    const command = event.results[0][0].transcript.trim();
 
-};
+    console.log("User:", command);
+    showMessage("Aapne bola: " + command);
 
-window.onload = () => {
-    speak("Hello Ravi, voice test ho raha hai");
-};
+    sendCommand(command);
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Voice error:", event.error);
+    showMessage("Voice error: " + event.error);
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    console.log("Listening stopped");
+  };
+}
